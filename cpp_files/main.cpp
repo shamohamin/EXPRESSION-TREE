@@ -4,6 +4,9 @@
 #include <string>
 #include <stack>
 #include <math.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
+#include <GL/glu.h>
 #define size 80
 using namespace std ;
 
@@ -21,6 +24,7 @@ map <char,int> precedence ;
 stack <char> operators ;
 int last_precedence = 0 ;
 string postfix = "";
+Node *root ;
 
 bool find_operator(char) ;
 bool checker(char) ;
@@ -29,8 +33,16 @@ void pop_inside_practense() ;
 int calculate(string first_element , string last_elemnt , char op);
 int calculate_the_value_of_postfix();
 Node * make_tree() ;
+void display() ;
 
-int main() {
+void setup() {   glClearColor(1.0f, 1.0f, 1.0f, 1.0f); }
+
+int main(int argc, char *argv[]) {
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitWindowSize(2000,2000);
+    glutCreateWindow("Hello World");
 
     precedence['+'] = 1 ;
     precedence.insert(pair<char , int>('-' , 1)) ;
@@ -69,9 +81,13 @@ int main() {
 
     cout << calculate_the_value_of_postfix() << endl ;
 
-    Node *root = make_tree() ;
+    root = make_tree() ;
 
-    cout << root->value ;
+    cout << root->value << endl ;
+
+    setup();
+    glutDisplayFunc(display);
+    glutMainLoop();
 
     return 0;
 }
@@ -215,3 +231,57 @@ Node *make_tree(){
 
     return node_holder.top() ;
 }
+
+void drawLine(float x , float y , float vgap , float hgap){
+    GLfloat lineVertices[] = {
+        x  , y , 0 ,
+        x + vgap , y + hgap , 0 
+    };
+    glVertexPointer(3 , GL_FLOAT , 0 , lineVertices) ;
+    glDrawArrays(GL_LINES , 0 , 2) ;
+}
+
+void draw_circle(float x , float y){
+    float radius = 0.05 ;
+    float x2,y2;
+    glEnable(GL_POINT_SMOOTH);
+    glBegin(GL_TRIANGLE_FAN);
+        for (float angle=1.0f;angle<361.0f;angle+=0.2)
+        {
+            x2 = x + sin(angle)*radius;
+            y2 = y + cos(angle)*radius;
+            glVertex2f(x2,y2);
+        }
+    glEnd();
+    glDisable(GL_POINT_SMOOTH) ;
+}
+
+void display_tree(Node *root , float x , float y ,float vgap , float hgap){
+    if (root->left != nullptr)
+    {
+        glLineWidth(5);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        drawLine(x , y , -vgap , -hgap) ;
+        display_tree(root->left , x - vgap , y - hgap , vgap  , hgap) ;
+    }
+    if(root->right != nullptr){
+        glColor3f(0.0f, 0.0f, 1.0f);
+        drawLine(x , y , vgap , -hgap) ;
+        display_tree(root->right , x + vgap , y - hgap , vgap  , hgap ) ;
+    }
+    glColor3f(1.0f, 0.0f, 0.0f);
+    draw_circle(x , y) ;
+} 
+
+
+void display(){
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    display_tree(::root ,0.05 ,0.9 , 0.2 , 0.2);    
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glutSwapBuffers();
+}
+
