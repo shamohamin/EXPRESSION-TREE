@@ -1,0 +1,13 @@
+#main {
+    top : 20px ; 
+    border-radius: 20px;
+    margin: 10%;     
+    height: 40vh;
+}
+
+.input-formula {
+    margin-top: 20px;
+    width: 50%;
+    margin-left: 25px;
+    color:black
+}
