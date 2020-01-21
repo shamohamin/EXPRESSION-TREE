@@ -4,9 +4,14 @@
 #include <string>
 #include <stack>
 #include <math.h>
+#include <thread> 
+#include <chrono>
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <GL/glu.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
 #define size 80
 using namespace std ;
 
@@ -25,6 +30,7 @@ stack <char> operators ;
 int last_precedence = 0 ;
 string postfix = "";
 Node *root ;
+int value ;
 
 bool find_operator(char) ;
 bool checker(char) ;
@@ -50,7 +56,7 @@ int main(int argc, char *argv[]) {
     precedence['*'] = 2 ;
     precedence['^'] = 3 ;
 
-    string infix= "1-2^3^3" ;
+    string infix= "1-2^2^2" ;
 
     try {
         for (int i = 0; i < infix.length(); i++) {
@@ -77,13 +83,14 @@ int main(int argc, char *argv[]) {
         operators.pop() ;
     }
 
-    cout << postfix << endl;
+    // cout << postfix << endl;
 
-    cout << calculate_the_value_of_postfix() << endl ;
+    value = calculate_the_value_of_postfix() ;
+    cout << value << endl ;
 
     root = make_tree() ;
 
-    cout << root->value << endl ;
+    // cout << root->value << endl ;
 
     setup();
     glutDisplayFunc(display);
@@ -180,6 +187,7 @@ int calculate_the_value_of_postfix(){
             string second_element = converter.top() ;
             converter.pop() ;
             int cal = calculate(first_element , second_element , (char)postfix.at(i)) ;
+            // cout << "cal is : " << cal << endl ;
             converter.push(to_string(cal)) ;
         }
     }
@@ -242,7 +250,7 @@ void drawLine(float x , float y , float vgap , float hgap){
 }
 
 void draw_circle(float x , float y){
-    float radius = 0.05 ;
+    float radius = 0.1 ;
     float x2,y2;
     glEnable(GL_POINT_SMOOTH);
     glBegin(GL_TRIANGLE_FAN);
@@ -257,8 +265,9 @@ void draw_circle(float x , float y){
 }
 
 void display_tree(Node *root , float x , float y ,float vgap , float hgap){
-    if (root->left != nullptr)
-    {
+    // sleep(1000);
+    // getc() ;
+    if (root->left != nullptr){
         glLineWidth(5);
         glColor3f(0.0f, 1.0f, 0.0f);
         drawLine(x , y , -vgap , -hgap) ;
@@ -271,15 +280,32 @@ void display_tree(Node *root , float x , float y ,float vgap , float hgap){
     }
     glColor3f(1.0f, 0.0f, 0.0f);
     draw_circle(x , y) ;
-} 
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glRasterPos3f(x, y,0.0);
+    glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, root->value);
 
+} 
 
 void display(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3f(1.0f, 0.0f, 0.0f);
     glEnableClientState(GL_VERTEX_ARRAY);
 
+    
     display_tree(::root ,0.05 ,0.9 , 0.2 , 0.2);    
+
+    glRasterPos3f(-1, 0.8,0.0);
+    char *value_count = "the fucking value is : " ;
+    for ( ;*value_count != '\0' ; value_count++)  
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *value_count);
+
+    char *s = (char *)calloc(20,sizeof(char));
+    string str = "" ;
+    str += to_string(value) ;
+    s = &str.at(0) ;
+    // cout << s << endl ; 
+    for(; *s != '\0' ; s++)
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *s);
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glutSwapBuffers();
