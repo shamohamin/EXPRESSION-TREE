@@ -44,11 +44,19 @@ void display() ;
 void setup() {   glClearColor(1.0f, 1.0f, 1.0f, 1.0f); }
 
 int main(int argc, char *argv[]) {
+    
+    cout << "hello " ;
+    string infix = "" ;
+    char * hold = &argv[1][0] ;
+    // cout << argv[1] ;
+    for(;*hold != '\0';hold++)
+        infix += *hold ;
+    
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
     glutInitWindowSize(2000,2000);
-    glutCreateWindow("Hello World");
+    glutCreateWindow("Expression Tree");
 
     precedence['+'] = 1 ;
     precedence.insert(pair<char , int>('-' , 1)) ;
@@ -56,7 +64,7 @@ int main(int argc, char *argv[]) {
     precedence['*'] = 2 ;
     precedence['^'] = 3 ;
 
-    string infix= "1-2^2^2" ;
+    
 
     try {
         for (int i = 0; i < infix.length(); i++) {
@@ -295,9 +303,9 @@ void display(){
     display_tree(::root ,0.05 ,0.9 , 0.2 , 0.2);    
 
     glRasterPos3f(-1, 0.8,0.0);
-    char *value_count = "the fucking value is : " ;
-    for ( ;*value_count != '\0' ; value_count++)  
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *value_count);
+    char value_count[] = "the fucking value is : " ;
+    for (char *value = value_count ;*value != '\0' ; value++)  
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *value);
 
     char *s = (char *)calloc(20,sizeof(char));
     string str = "" ;
