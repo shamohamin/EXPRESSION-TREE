@@ -20,9 +20,9 @@ using namespace std ;
 struct Node {
     Node *left ;
     Node *right;
-    string value;
+    char value;
 
-    Node(string value) : value(value) , left(nullptr) , right(nullptr){};
+    Node(char value) : value(value) , left(nullptr) , right(nullptr){};
 
 };
 
@@ -51,19 +51,72 @@ void setup() {   glClearColor(1.0f, 1.0f, 1.0f, 1.0f); }
 
 int main(int argc, char *argv[]) {
     
-    string infix = "" ;
-    char * hold = &argv[1][0] ;
-
-    for(;*hold != '\0';hold++)
-        infix += *hold ;
-
+    // cout << "hello " ;
+    string infix = "1-2^2^2222^4442^2" ;
+    
+    // char * hold = &argv[1][0] ;
+    // cout << argv[1] ;
+    // for(;*hold != '\0';hold++)
+        // infix += *hold ;
+    // infix = "2+(3^(4*2))+8+8";
     string str = "";
     int index = 0 ;
 
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
-    glutInitWindowSize(2000,2000);
-    glutCreateWindow("Expression Tree");
+    // str += "#" ;
+    // for(int i = 0 ; i < infix.length() ; i++){
+    //     if(!isdigit(infix.at(i))){
+    //         if (infix.at(i) != '(')
+    //             str += '#';
+    //         str+= infix.at(i) ;
+    //         index = i ;
+    //     }else{
+    //         str += infix.at(i) ;
+    //     }
+    //     // str.at(index) = '#';
+    // }
+
+    //     if(!isdigit(infix.at(i))){
+    //         if (infix.at(i) != '(')
+    //             str += '#';
+    //         str+= infix.at(i) ;
+    //         index = i ;
+    //     }else{
+    //         str += infix.at(i) ;
+    //     }
+    //     // str.at(index) = '#';
+    // }
+
+    //     if(!isdigit(infix.at(i))){
+    //         if (infix.at(i) != '(')
+    //             str += '#';
+    //         str+= infix.at(i) ;
+    //         index = i ;
+    //     }else{
+    //         str += infix.at(i) ;
+    //     }
+    //     // str.at(index) = '#';
+    // }
+
+    //     if(!isdigit(infix.at(i))){
+    //         if (infix.at(i) != '(')
+    //             str += '#';
+    //         str+= infix.at(i) ;
+    //         index = i ;
+    //     }else{
+    //         str += infix.at(i) ;
+    //     }
+    //     // str.at(index) = '#';
+    // }
+
+    // str+="#";
+
+    // cout << str << endl;
+
+    //exit(1);
+    // glutInit(&argc, argv);
+    // glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    // glutInitWindowSize(2000,2000);
+    // glutCreateWindow("Expression Tree");
 
     precedence['+'] = 1 ;
     precedence.insert(pair<char , int>('-' , 1)) ;
@@ -78,17 +131,17 @@ int main(int argc, char *argv[]) {
             char hold = infix.at(i);
             if (!find_operator((char) hold) && hold != '(' && hold != ')'){
                 postfix += hold ;
-
                 int j = i;
                 string num = "";
 
-                while (j < infix.length() && (find_operator(infix.at(j)) == false) && infix.at(j) != '(' && infix.at(j) != ')')
-                    num += infix.at(j) , j++ ;
-
-
+                while (j < infix.length()&& (find_operator(infix.at(j)) == false) && infix.at(j) != '(' && infix.at(j) != ')'){
+                    num += infix.at(j) ;
+                    j++ ;
+                }
                 post.push_back(num) ;
                 counter++;
                 i = j - 1;
+                // cout << post[counter - 1] <<  " ";
             } else {
                 if(hold == '('){
                     operators.push(hold);
@@ -100,6 +153,7 @@ int main(int argc, char *argv[]) {
                     else pop_operators(hold , counter) ;
                 }
             }
+            // cout << postfix << endl ;
         }
     }catch (const char *err){
         cout << err << endl ;
@@ -114,20 +168,25 @@ int main(int argc, char *argv[]) {
         post.push_back(str1) ;
     }
 
-    cout << endl ;    
-
+    cout << postfix << endl;
     for(int i = 0 ; i < post.size() ; i++)
         cout << post[i] << " ";
 
-
+    exit(1);
     value = calculate_the_value_of_postfix() ;
     cout << value << endl ;
 
+    sleep(1);
+
     root = make_tree() ;
 
-    setup();
-    glutDisplayFunc(display);
-    glutMainLoop();
+    // display_tree(::root ,0.05 ,0.9 , 0.2 , 0.2);   
+
+    // cout << root->value << endl ;
+
+    // setup();
+    // glutDisplayFunc(display);
+    // glutMainLoop();
 
     return 0;
 }
@@ -156,10 +215,6 @@ void pop_inside_practense(int &count){
     operators.push(operators_inside_stack) ;
 }
 
-void print(){
-    cout << ::operators.top() ;    
-}
-
 //this function is for pop and insert operators to post fix expression
 void pop_operators(char scanned_operator , int &count){
 
@@ -181,7 +236,7 @@ void pop_operators(char scanned_operator , int &count){
             post.push_back(str) ;
             count++;
             last_precedence = 0 ;
-            operators.push(scanned_operator) ;
+            operators.push(operator_precedence) ;
             break ;
         }else if(operator_precedence == '('){
             last_precedence = 0 ;
@@ -193,12 +248,6 @@ void pop_operators(char scanned_operator , int &count){
         post.push_back(str) ;
         count++;   
     }
-    cout << endl ;
-
-    for(int i = 0 ; i < post.size() ; i++)
-        cout << post[i] << " ";
-
-    cout << endl ;
 }
 
 //this function is for precedence check
@@ -229,25 +278,23 @@ bool find_operator(char single){
 }
 
 int calculate_the_value_of_postfix(){
+    stack <string> converter;
 
-    stack<string> converter2 ;
-
-    for(int i = 0 ; i < post.size() ; i++){
+    for(int i = 0 ; i < postfix.length() ; i++){
         string str = "" ;
-        if(find_operator(post.at(i).at(0)) == false) converter2.push(post.at(i));
+        if(find_operator(postfix.at(i)) == false) converter.push(str += postfix.at(i));
         else {  
-            string first_element = converter2.top();
-            converter2.pop() ;
-            string second_element = converter2.top() ;
-            converter2.pop() ;
-            int cal = calculate(first_element , second_element , (char)post.at(i).at(0)) ;
-            cout << "cal is : " << cal << endl ;
-            converter2.push(to_string(cal)) ;
+            string first_element = converter.top();
+            converter.pop() ;
+            string second_element = converter.top() ;
+            converter.pop() ;
+            int cal = calculate(first_element , second_element , (char)postfix.at(i)) ;
+            // cout << "cal is : " << cal << endl ;
+            converter.push(to_string(cal)) ;
         }
     }
 
-
-    return stoi(converter2.top()) ;
+    return stoi(converter.top()) ;
 }
 
 int calculate(string first_element , string last_elemnt , char op){
@@ -273,13 +320,13 @@ int calculate(string first_element , string last_elemnt , char op){
 Node *make_tree(){
     stack<Node *> node_holder ;
 
-    for(int i = 0 ; i < post.size() ; i++){
+    for(int i = 0 ; i < postfix.length() ; i++){
         Node *t = (struct Node *)malloc(sizeof(struct Node)) ;
-        if(!find_operator(post.at(i).at(0))){
-            t = new Node(post.at(i)) ;
+        if(!find_operator(postfix.at(i))){
+            t = new Node(postfix.at(i)) ;
             node_holder.push(t) ;
         }else {
-            t = new Node(post.at(i)) ;
+            t = new Node(postfix.at(i)) ;
             Node *left = (struct Node *)malloc(sizeof(struct Node)) ;
             Node *right = (struct Node *)malloc(sizeof(struct Node)) ; 
             right = node_holder.top() ;
@@ -305,11 +352,12 @@ void drawLine(float x , float y , float vgap , float hgap){
 }
 
 void draw_circle(float x , float y){
-    float radius = 0.03 ;
+    float radius = 0.005 ;
     float x2,y2;
     glEnable(GL_POINT_SMOOTH);
     glBegin(GL_TRIANGLE_FAN);
-        for (float angle=1.0f;angle<361.0f;angle+=0.2){
+        for (float angle=1.0f;angle<361.0f;angle+=0.2)
+        {
             x2 = x + sin(angle)*radius;
             y2 = y + cos(angle)*radius;
             glVertex2f(x2,y2);
@@ -319,23 +367,25 @@ void draw_circle(float x , float y){
 }
 
 void display_tree(Node *root , float x , float y ,float vgap , float hgap){
+    // sleep(1);
+    // fflush(stdout);
+    // getc() ;
     if (root->left != nullptr){
         glLineWidth(5);
         glColor3f(0.0f, 1.0f, 0.0f);
         drawLine(x , y , -vgap , -hgap) ;
-        display_tree(root->left , x - vgap , y - hgap , vgap*0.8  , hgap*0.8) ;
+        display_tree(root->left , x - vgap , y - hgap , vgap/2  , hgap/2) ;
     }
     if(root->right != nullptr){
         glColor3f(0.0f, 0.0f, 1.0f);
         drawLine(x , y , vgap , -hgap) ;
-        display_tree(root->right , x + vgap , y - hgap , vgap*0.8  , hgap*0.8 ) ;
+        display_tree(root->right , x + vgap , y - hgap , vgap/2  , hgap/2 ) ;
     }
     glColor3f(1.0f, 0.0f, 0.0f);
     draw_circle(x , y) ;
     glColor3f(0.0f, 0.0f, 0.0f);
     glRasterPos3f(x, y,0.0);
-    for(int i = 0 ; i < root->value.size() ; i++) 
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, root->value.at(i));
+    glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, root->value);
 
 } 
 
@@ -344,7 +394,7 @@ void display(){
     glColor3f(1.0f, 0.0f, 0.0f);
     glEnableClientState(GL_VERTEX_ARRAY);
 
-    display_tree(::root ,0.05 ,0.9 , 0.2 , 0.2) ;
+    if(::root != nullptr) display_tree(::root ,0.05 ,0.9 , 0.2 , 0.2);   
 
     glRasterPos3f(-1, 0.8,0.0);
     char value_count[] = "the fucking value is : " ;
@@ -355,6 +405,7 @@ void display(){
     string str = "" ;
     str += to_string(value) ;
     s = &str.at(0) ;
+    // cout << s << endl ; 
     for(; *s != '\0' ; s++)
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *s);
 
